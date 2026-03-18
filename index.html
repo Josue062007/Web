@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amor Gótico ❤️ con IA</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Librerías de Inteligencia Artificial (MediaPipe) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Fuentes Góticas/Clásicas del Siglo XIX -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <!-- El corazón animado principal (estilo oscuro) -->
+        <div class="heart" id="heart"></div>
+
+        <!-- Mensaje principal que se ve siempre -->
+        <h1 class="message" id="main-message">Cartas a la distancia, para sayuri</h1>
+
+        <!-- Carta de amor secreta (Izquierda) -->
+        <div class="secret-card left" id="secret-card-left">
+            <h2>Para ti amor</h2>
+            <p>
+                No importa lo que esté haciendo, siempre hay un momento en el día en el que te busco y no estás.
+                Te extraño de una forma muy sincera, <span class="highlight">Sayuri</span>;
+                el mundo simplemente se siente incompleto sin tu sonrisa cerca katerine.
+            </p>
+        </div>
+
+        <!-- Carta de amor secreta (Derecha) -->
+        <div class="secret-card right" id="secret-card-right">
+            <h2>Vínculo Eterno</h2>
+            <p>
+                Más allá de las palabras y el silencio, mi pensamiento siempre termina buscándote.
+                Eres mi refugio constante, <span class="highlight">Sayuri</span>;
+                el lazo que me une a todo lo que es bueno y verdadero.
+            </p>
+        </div>
+
+        <!-- Texto de alerta para el estado de la cámara -->
+        <p class="status-indicator" id="status-indicator">Invocando el espejo del alma... (Permite el acceso a la
+            cámara)</p>
+    </div>
+
+    <!-- Contenedor de video nativo para leer la cámara (invisible) -->
+    <video class="input_video" id="input-video" style="display: none;" playsinline></video>
+
+    <!-- Partículas mágicas oscuras -->
+    <div id="particles"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
