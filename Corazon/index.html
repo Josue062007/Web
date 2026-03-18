@@ -3,37 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para ti ❤️ con IA</title>
+    <title>Amor Gótico ❤️ con IA</title>
     <link rel="stylesheet" href="style.css">
     
-    <!-- Librerías de Inteligencia Artificial (MediaPipe) para visión por computadora en el navegador -->
+    <!-- Librerías de Inteligencia Artificial (MediaPipe) -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    
+    <!-- Fuentes Góticas/Clásicas del Siglo XIX -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <!-- El corazón animado principal -->
+        <!-- El corazón animado principal (estilo oscuro) -->
         <div class="heart" id="heart"></div>
         
         <!-- Mensaje principal que se ve siempre -->
-        <h1 class="message" id="main-message">Te extraño amor</h1>
+        <h1 class="message" id="main-message">Mi tormento y mi anhelo</h1>
         
-        <!-- Carta de amor secreta, aparece con la interacción física -->
-        <div class="secret-card" id="secret-card">
-            <h2>Mi corazón se abre para ti</h2>
-            <p>Esa palma abierta me dice que me acercas a tu corazón.<br>Siempre estaré para ti 💕</p>
+        <!-- Carta de amor secreta (Izquierda) -->
+        <div class="secret-card left" id="secret-card-left">
+            <h2>Ecos de la Noche</h2>
+            <p>Incluso en las sombras más profundas de mi alma,<br>tu luz me guía, amada mía.</p>
+        </div>
+
+        <!-- Carta de amor secreta (Derecha) -->
+        <div class="secret-card right" id="secret-card-right">
+            <h2>Vínculo Eterno</h2>
+            <p>Ni el tiempo ni la muerte podrán quebrar<br>la devoción que te profeso hoy y siempre.</p>
         </div>
         
         <!-- Texto de alerta para el estado de la cámara -->
-        <p class="status-indicator" id="status-indicator">Iniciando IA mágica... (Por favor, permite el acceso a la cámara)</p>
+        <p class="status-indicator" id="status-indicator">Invocando el espejo del alma... (Permite el acceso a la cámara)</p>
     </div>
     
     <!-- Contenedor de video nativo para leer la cámara (invisible) -->
     <video class="input_video" id="input-video" style="display: none;" playsinline></video>
 
-    <!-- Partículas mágicas que flotan de fondo -->
+    <!-- Partículas mágicas oscuras -->
     <div id="particles"></div>
 
     <script src="script.js"></script>

@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
-
+/* style.css */
 body {
     margin: 0;
     padding: 0;
@@ -7,10 +6,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Fondo oscuro estrellado y romántico */
-    background: radial-gradient(circle at center, #2e081c 0%, #000000 100%);
+    /* Fondo oscuro gótico victoriano */
+    background: radial-gradient(circle at center, #1a0510 0%, #000000 100%);
     overflow: hidden;
-    font-family: 'Dancing Script', cursive;
+    font-family: 'Playfair Display', serif;
 }
 
 .container {
@@ -21,16 +20,16 @@ body {
     z-index: 10;
 }
 
-/* Corazón gigante central */
+/* Corazón gigante central (Rojo Sangre Oscuro) */
 .heart {
     position: relative;
     width: 120px;
     height: 120px;
-    background-color: #ff2a5f;
+    background-color: #8a0303;
     transform: rotate(-45deg);
-    animation: heartbeat 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-    box-shadow: 0 0 50px rgba(255, 42, 95, 0.8);
-    transition: opacity 0.8s ease, transform 0.8s ease;
+    animation: heartbeat 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    box-shadow: 0 0 50px rgba(138, 3, 3, 0.6);
+    transition: opacity 1s ease, transform 1s ease;
 }
 
 .heart::before,
@@ -39,9 +38,9 @@ body {
     position: absolute;
     width: 120px;
     height: 120px;
-    background-color: #ff2a5f;
+    background-color: #8a0303;
     border-radius: 50%;
-    box-shadow: 0 0 50px rgba(255, 42, 95, 0.5);
+    box-shadow: 0 0 30px rgba(138, 3, 3, 0.4);
 }
 
 .heart::before {
@@ -55,28 +54,30 @@ body {
 }
 
 .heart.hide {
-    opacity: 0.1; /* Se apaga el corazón principal cuando se abre el mensaje */
+    opacity: 0.05;
     animation-play-state: paused;
 }
 
 @keyframes heartbeat {
     0% { transform: rotate(-45deg) scale(1); }
-    15% { transform: rotate(-45deg) scale(1.35); }
+    15% { transform: rotate(-45deg) scale(1.2); }
     30% { transform: rotate(-45deg) scale(1); }
-    45% { transform: rotate(-45deg) scale(1.15); }
+    45% { transform: rotate(-45deg) scale(1.1); }
     60% { transform: rotate(-45deg) scale(1); }
     100% { transform: rotate(-45deg) scale(1); }
 }
 
-/* Texto brillante */
+/* Texto estilo título antiguo */
 .message {
-    color: #ffffff;
-    font-size: 5rem;
+    font-family: 'Cinzel Decorative', cursive;
+    color: #d4a373; /* Dorado envejecido */
+    font-size: 3.5rem;
     margin-top: 80px;
-    text-shadow: 0 0 10px #ff2a5f, 0 0 20px #ff2a5f, 0 0 40px #ff2a5f;
+    text-shadow: 0 0 10px rgba(212, 163, 115, 0.5), 2px 2px 4px #000;
     opacity: 0;
-    transition: opacity 0.8s ease;
-    animation: fadeInUp 2s ease-out 0.5s forwards, glow 2s ease-in-out infinite alternate 2.5s;
+    transition: opacity 1s ease;
+    animation: fadeInUp 2s ease-out 0.5s forwards;
+    text-align: center;
 }
 
 .message.hide {
@@ -94,47 +95,65 @@ body {
     }
 }
 
-@keyframes glow {
-    from { text-shadow: 0 0 10px #ff2a5f, 0 0 30px #ff2a5f; }
-    to { text-shadow: 0 0 20px #ff2a5f, 0 0 40px #ff0040, 0 0 60px #ff0000; }
-}
-
-/* Carta / Mensaje Secreto */
+/* Cartas Secretas victorianas */
 .secret-card {
     position: absolute;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.8);
-    background: rgba(255, 42, 95, 0.15);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 42, 95, 0.4);
-    border-radius: 20px;
-    padding: 30px;
+    transform: translateY(-50%) scale(0.8);
+    background: rgba(15, 15, 15, 0.85);
+    border: 2px solid #5a0202;
+    border-radius: 5px; /* Bordes menos redondeados, más clásicos */
+    padding: 40px;
     text-align: center;
-    color: white;
-    width: 400px;
+    color: #e0e0e0;
+    width: 350px;
     opacity: 0;
     pointer-events: none;
-    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     z-index: 20;
-    box-shadow: 0 0 30px rgba(255, 42, 95, 0.3);
+    box-shadow: 0 0 40px rgba(90, 2, 2, 0.6), inset 0 0 20px rgba(0,0,0,0.8);
+    /* Efecto de papel tapiz oscuro */
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);
+}
+
+.secret-card.left {
+    left: 10%;
+    /* initially hidden in center */
+    transform: translate(50%, -50%) scale(0.5); 
+}
+
+.secret-card.right {
+    right: 10%;
+    transform: translate(-50%, -50%) scale(0.5); 
 }
 
 .secret-card.show {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1); /* Efecto salto suave al aparecer */
+}
+
+.secret-card.left.show {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.secret-card.right.show {
+    transform: translate(50%, -50%) scale(1);
 }
 
 .secret-card h2 {
-    font-size: 2.8rem;
-    margin-bottom: 10px;
-    text-shadow: 0 0 10px #ff2a5f;
+    font-family: 'Cinzel Decorative', cursive;
+    color: #8a0303;
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px #000;
+    border-bottom: 1px solid #3a0000;
+    padding-bottom: 10px;
 }
 
 .secret-card p {
-    font-size: 1.8rem;
-    line-height: 1.4;
-    text-shadow: 0 0 5px #ff2a5f;
+    font-size: 1.4rem;
+    line-height: 1.6;
+    font-style: italic;
+    color: #bfa18f;
 }
 
 /* Indicador log */
@@ -143,19 +162,17 @@ body {
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    color: rgba(255, 255, 255, 0.4);
-    font-family: sans-serif;
+    color: #555;
     font-size: 1rem;
     transition: opacity 0.5s;
     text-align: center;
-    white-space: nowrap;
 }
 
 .status-indicator.hide {
     opacity: 0;
 }
 
-/* Corazones flotantes de fondo */
+/* Corazones flotantes oscuros */
 #particles {
     position: absolute;
     top: 0;
@@ -174,9 +191,9 @@ body {
 
 .particle-heart {
     position: relative;
-    width: 20px;
-    height: 20px;
-    background-color: rgba(255, 42, 95, 0.4);
+    width: 15px;
+    height: 15px;
+    background-color: rgba(90, 2, 2, 0.4);
     transform: rotate(-45deg);
 }
 
@@ -184,20 +201,20 @@ body {
 .particle-heart::after {
     content: '';
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
     background-color: inherit;
     border-radius: 50%;
 }
 
 .particle-heart::before {
-    top: -10px;
+    top: -7.5px;
     left: 0;
 }
 
 .particle-heart::after {
     top: 0;
-    left: 10px;
+    left: 7.5px;
 }
 
 @keyframes floatUp {
