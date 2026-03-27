@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PhoneCam — Cámara</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow cyan"></div>
+  <div class="bg-glow purple"></div>
+
+  <div class="phone-container">
+    <div class="phone-header">
+      <div class="logo">
+        <div class="logo-icon">📷</div>
+        <span class="logo-text">PhoneCam</span>
+      </div>
+      <a href="index.html" class="btn btn-secondary btn-icon" title="Volver">✕</a>
+    </div>
+
+    <!-- Section 1: Setup -->
+    <div class="section active" id="setup-section">
+      <div class="glass-card" style="max-width: 400px;">
+        <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center;">Compartir Cámara</h2>
+        <p style="color: var(--text-secondary); font-size: 13px; text-align: center; margin-bottom: 24px;">
+          Genera un código para que la PC se conecte a este celular
+        </p>
+        <button class="btn btn-primary btn-block btn-lg" id="btn-create-room">
+          🔗 Generar Código de Conexión
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 2: Waiting for dashboard -->
+    <div class="section" id="waiting-section">
+      <div class="glass-card" style="max-width: 400px;">
+        <div class="room-code-display">
+          <div class="label">Código de Sala</div>
+          <div class="code" id="room-code">------</div>
+          <div class="hint">Ingresa este código en el dashboard de la PC</div>
+        </div>
+        <div class="status-bar">
+          <div class="status-dot waiting"></div>
+          <span class="status-text" id="waiting-status">Esperando conexión de la PC...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Streaming -->
+    <div class="section" id="streaming-section">
+      <div class="phone-video-area">
+        <div class="status-bar" style="width: 100%; max-width: 400px;">
+          <div class="status-dot connected" id="stream-status-dot"></div>
+          <span class="status-text" id="stream-status">Transmitiendo en vivo</span>
+        </div>
+
+        <div class="video-wrapper phone-preview">
+          <video id="local-video" autoplay muted playsinline></video>
+          <div class="video-overlay">
+            <div class="video-badge">
+              <span class="dot"></span>
+              <span id="camera-label">Cámara trasera</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone-controls">
+          <button class="btn btn-secondary btn-icon" id="btn-switch-camera" title="Cambiar cámara">
+            🔄
+          </button>
+          <button class="btn btn-danger btn-icon" id="btn-stop" title="Detener">
+            ⏹
+          </button>
+        </div>
+
+        <div class="room-code-display" style="padding: 12px 16px; margin: 0; max-width: 400px; width: 100%;">
+          <div class="label" style="margin-bottom: 4px;">Sala</div>
+          <div class="code" id="room-code-small" style="font-size: 24px; letter-spacing: 6px;">------</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // ─── State ───
+    let socket;
+    let peerConnection;
+    let localStream;
+    let currentFacingMode = 'environment'; // 'environment' = trasera, 'user' = frontal
+    let roomCode = '';
+
+    // ─── ICE Servers (STUN + TURN) ───
+    const iceServers = {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        { urls: 'stun:stun4.l.google.com:19302' },
+        // Free TURN servers from Open Relay Project
+        {
+          urls: 'turn:openrelay.metered.ca:80',
+          username: 'openrelayproject',
+          credential: 'openrelayproject'
+        },
+        {
+          urls: 'turn:openrelay.metered.ca:443',
+          username: 'openrelayproject',
+          credential: 'openrelayproject'
+        },
+        {
+          urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+          username: 'openrelayproject',
+          credential: 'openrelayproject'
+        }
+      ]
+    };
+
+    // ─── Sections ───
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ─── Camera ───
+    async function startCamera() {
+      try {
+        if (localStream) {
+          localStream.getTracks().forEach(t => t.stop());
+        }
+        localStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: currentFacingMode,
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: true
+        });
+        document.getElementById('local-video').srcObject = localStream;
+        document.getElementById('camera-label').textContent =
+          currentFacingMode === 'user' ? 'Cámara frontal' : 'Cámara trasera';
+        return localStream;
+      } catch (err) {
+        console.error('Error al acceder a la cámara:', err);
+        showToast('❌ No se pudo acceder a la cámara');
+        throw err;
+      }
+    }
+
+    // ─── WebRTC ───
+    async function createPeerConnection() {
+      if (peerConnection) {
+        peerConnection.close();
+      }
+
+      peerConnection = new RTCPeerConnection(iceServers);
+
+      // Add local tracks
+      localStream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStream);
+      });
+
+      // ICE candidates
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit('ice-candidate', { candidate: event.candidate });
+        }
+      };
+
+      peerConnection.oniceconnectionstatechange = () => {
+        const state = peerConnection.iceConnectionState;
+        console.log('ICE state:', state);
+        const dot = document.getElementById('stream-status-dot');
+        const text = document.getElementById('stream-status');
+
+        switch (state) {
+          case 'connected':
+          case 'completed':
+            dot.className = 'status-dot connected';
+            text.textContent = 'Transmitiendo en vivo';
+            break;
+          case 'disconnected':
+            dot.className = 'status-dot waiting';
+            text.textContent = 'Reconectando...';
+            break;
+          case 'failed':
+            dot.className = 'status-dot disconnected';
+            text.textContent = 'Conexión perdida';
+            showToast('⚠️ Conexión perdida. Intenta reconectar.');
+            break;
+        }
+      };
+
+      return peerConnection;
+    }
+
+    async function createAndSendOffer() {
+      await createPeerConnection();
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit('offer', { sdp: peerConnection.localDescription });
+    }
+
+    // ─── Socket.IO ───
+    function connectSocket() {
+      socket = io();
+
+      socket.on('connect', () => {
+        console.log('Conectado al servidor');
+      });
+
+      socket.on('dashboard-connected', async () => {
+        console.log('Dashboard conectado');
+        showSection('streaming-section');
+        document.getElementById('room-code-small').textContent = roomCode;
+
+        try {
+          await startCamera();
+          await createAndSendOffer();
+          showToast('✅ PC conectada — transmitiendo video');
+        } catch (err) {
+          console.error('Error starting stream:', err);
+        }
+      });
+
+      socket.on('answer', async (data) => {
+        try {
+          if (peerConnection.signalingState === 'have-local-offer') {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
+          }
+        } catch (err) {
+          console.error('Error setting answer:', err);
+        }
+      });
+
+      socket.on('ice-candidate', async (data) => {
+        try {
+          if (peerConnection && data.candidate) {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+          }
+        } catch (err) {
+          console.error('Error adding ICE candidate:', err);
+        }
+      });
+
+      socket.on('dashboard-disconnected', () => {
+        showToast('💻 La PC se desconectó');
+        const dot = document.getElementById('stream-status-dot');
+        const text = document.getElementById('stream-status');
+        dot.className = 'status-dot waiting';
+        text.textContent = 'Esperando reconexión de la PC...';
+      });
+
+      socket.on('renegotiate', async () => {
+        try {
+          await createAndSendOffer();
+        } catch (err) {
+          console.error('Renegotiation error:', err);
+        }
+      });
+
+      socket.on('disconnect', () => {
+        showToast('⚠️ Desconectado del servidor');
+      });
+    }
+
+    // ─── Event Listeners ───
+    document.getElementById('btn-create-room').addEventListener('click', () => {
+      connectSocket();
+      socket.emit('create-room', (response) => {
+        if (response.success) {
+          roomCode = response.roomCode;
+          document.getElementById('room-code').textContent = roomCode;
+          showSection('waiting-section');
+          showToast('✅ Sala creada');
+        } else {
+          showToast('❌ Error al crear sala');
+        }
+      });
+    });
+
+    document.getElementById('btn-switch-camera').addEventListener('click', async () => {
+      currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+
+      try {
+        const newStream = await startCamera();
+
+        // Replace tracks in peer connection
+        if (peerConnection) {
+          const videoTrack = newStream.getVideoTracks()[0];
+          const sender = peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (sender) {
+            await sender.replaceTrack(videoTrack);
+          }
+          socket.emit('camera-switched', {
+            camera: currentFacingMode === 'user' ? 'frontal' : 'trasera'
+          });
+        }
+        showToast(currentFacingMode === 'user' ? '📸 Cámara frontal' : '📸 Cámara trasera');
+      } catch (err) {
+        console.error('Error switching camera:', err);
+      }
+    });
+
+    document.getElementById('btn-stop').addEventListener('click', () => {
+      if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+      }
+      if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+      }
+      if (socket) {
+        socket.disconnect();
+      }
+      showSection('setup-section');
+      showToast('⏹ Transmisión detenida');
+    });
+  </script>
+</body>
+</html>
